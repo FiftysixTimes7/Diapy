@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Diapy',
-    version='2.3.0',
+    version='2.3.1',
     description='A rough diary manager based on python.',
     url='https://github.com/FiftysixTimes7/Diapy',
     author='FiftysixTimes7(PTJ)',
