@@ -2,12 +2,25 @@
 # -*- coding: utf-8 -*-
 
 """
-Diary Managing System
-Version Beta 2.3.0
+Diapy - A diary manager based on python.
+Version Release 2.3
 """
 
 __author__ = 'FiftysixTimes7(PTJ)'
-__version__ = 'Beta 2.3.0'
+__version__ = 'Release 2.3'
+
+import datetime
+import msvcrt
+import hashlib
+import base64
+from cryptography.fernet import Fernet
+import os
+import pickle
+import zlib
+import pickletools
+import re
+from urllib import request
+import json
 
 
 class Diary(object):
@@ -29,7 +42,6 @@ class Diary(object):
             r = ''
 
             # Calculate date and weekday.
-            import datetime
             date = datetime.datetime.strptime(self.date, '%Y%m%d')
             date = datetime.date(date.year, date.month, date.day)
             week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -68,7 +80,6 @@ class Diary(object):
 
     def _input_pwd(self, text):
         # Input password.
-        import msvcrt
         pwd = b''
         print(text, end='\r')
         while True:
@@ -83,8 +94,6 @@ class Diary(object):
         print()
 
         # Process password to key.
-        import hashlib
-        import base64
         self._key = base64.urlsafe_b64encode(hashlib.sha256(pwd).digest())
 
     def change_pwd(self):
@@ -93,7 +102,6 @@ class Diary(object):
         self._status = 'Unsaved'
 
     def _crypt(self, mode, text):
-        from cryptography.fernet import Fernet
         f = Fernet(self._key)
         if mode in ['Encrypt', 'e', 'E', 'encrypt']:
             return f.encrypt(text)
@@ -101,10 +109,6 @@ class Diary(object):
             return f.decrypt(text)
 
     def _open_file(self):
-        import os
-        import pickle
-        import zlib
-        import base64
         # Extract data.
         if not os.path.exists(self.path):
             with open(self.path, 'wb'):
@@ -114,7 +118,6 @@ class Diary(object):
 
         # Check if this is a new file.
         if text == b'':
-            import datetime
             info = input('Diary info: ')
             self._content = {'info': info, 'date': str(datetime.date.today()),
                              'version': __version__, 'data': {}}
@@ -124,7 +127,7 @@ class Diary(object):
             self._content = pickle.loads(zlib.decompress(text))
 
             # Print information.
-            print(f'Diary Managing System Version {__version__}')
+            print(f'Diapy {__version__}')
             print('File:', self._content['info'], self._content['date'])
 
             self._status = 'Saved'
@@ -135,11 +138,6 @@ class Diary(object):
         # Edit version.
         if self._content['version'] != __version__:
             self._content['version'] = __version__
-
-        import pickle
-        import pickletools
-        import zlib
-        import base64
         with open(self.path, 'wb') as f:
             # Dump, optimize, compress, encrypt, decode.
             f.write(base64.urlsafe_b64decode(self._crypt('e', zlib.compress(
@@ -149,7 +147,6 @@ class Diary(object):
     def close(self):
         # Check if saved.
         if self._status == 'Unsaved':
-            import msvcrt
             print('Do you want to save the file before closing it?(y/n/c(cancel))')
             c = msvcrt.getch()
             print(c.decode('utf-8'))
@@ -207,7 +204,7 @@ You can use the export_all() and import_all() to export/import data.''')
                 r.append(self.DiarySpecific(self.path, d['content'], d['tags'], d['mood'], date, d['time'],
                                             d['location'], d['weather'], d['temperature'], d['file']))
 
-    def ls(self, mode, value=None, specific=True):
+    def ls(self, mode=None, value=None, specific=True):
         self.check()
         r = {}
 
@@ -317,6 +314,8 @@ You can use the export_all() and import_all() to export/import data.''')
                             r[self._content['data'][k]['weather']] = [k]
                         else:
                             r[self._content['data'][k]['weather']].append(k)
+        else:
+            return self._content['data'].keys()
 
         if not specific:
             for k in r:
@@ -340,11 +339,9 @@ You can use the export_all() and import_all() to export/import data.''')
 
     def new(self, content, tags, mood, date=None, time=None, location=None, weather=None, temperature=None,
             file=None):
-        import re
         self.check()
 
         def get_time(mode):
-            import datetime
             dateobj = datetime.datetime.now()
             if mode == 'date':
                 return str(dateobj.year) + str(dateobj.month).rjust(2, '0') + str(dateobj.day).rjust(2, '0')
@@ -352,7 +349,6 @@ You can use the export_all() and import_all() to export/import data.''')
                 return str(dateobj.hour).rjust(2, '0') + ':' + str(dateobj.minute).rjust(2, '0')
 
         def url_get(url):
-            from urllib import request
             c = 10
             while True:
                 try:
@@ -374,14 +370,12 @@ You can use the export_all() and import_all() to export/import data.''')
         def get_location():
             # Accurate to city.
             txt = url_get('https://www.boip.net/api/json').decode('utf-8')
-            import json
             d = json.loads(txt)
             return d['city']
 
         def get_weather():
             def process_weather_page(s):
                 try:
-                    import re
                     s = re.search('<pre>.+</pre>', s, re.S).group().split('\n')[1:3]  # Find the useful 2 lines.
                     s[0] = re.sub('<span .+</span>', '', s[0]).strip()  # Process the sky condition.
 
@@ -442,7 +436,6 @@ You can use the export_all() and import_all() to export/import data.''')
         r['mood'] = mood
 
         if file:
-            import os
             if os.path.isfile(file):
                 text = {'name': file[file.strip('\\').rfind('\\') + 1:]}
                 with open(file, 'rb') as f:
@@ -468,11 +461,11 @@ You can use the export_all() and import_all() to export/import data.''')
 
         print(self.get(date))
 
-    def recollect(self):
+    def recall(self):
         self.check()
         r = {}
-        from datetime import datetime, timedelta
-        t = datetime.today()
+        timedelta = datetime.timedelta
+        t = datetime.datetime.today()
         t1 = t - timedelta(weeks=1)
 
         s = str(t1.year) + str(t1.month).rjust(2, '0') + str(t1.day).rjust(2, '0')
@@ -501,7 +494,6 @@ You can use the export_all() and import_all() to export/import data.''')
         r = self._content
 
         # Ask if export the key.
-        import msvcrt
         print('Do you want to export the key?(y/n)')
         c = msvcrt.getch()
         print(c.decode('utf-8'))
@@ -514,14 +506,12 @@ You can use the export_all() and import_all() to export/import data.''')
         self.check()
 
         # Confirm.
-        import msvcrt
         print('This will over-write your current file. Do you want to continue?(y/n)')
         c = msvcrt.getch()
         print(c.decode('utf-8'))
         if c == b'y':
             if content.get('key'):
                 # Ask if import the key.
-                import msvcrt
                 print('Do you want to import the key?(y/n)')
                 c = msvcrt.getch()
                 print(c.decode('utf-8'))
