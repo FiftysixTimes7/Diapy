@@ -3,11 +3,11 @@
 
 """
 Diary Managing System
-Version Release 2.2.3
+Version Beta 2.3.0
 """
 
 __author__ = 'FiftysixTimes7(PTJ)'
-__version__ = 'Release 2.2.3'
+__version__ = 'Beta 2.3.0'
 
 
 class Diary(object):
@@ -351,11 +351,6 @@ You can use the export_all() and import_all() to export/import data.''')
             elif mode == 'time':
                 return str(dateobj.hour).rjust(2, '0') + ':' + str(dateobj.minute).rjust(2, '0')
 
-        if time is None:
-            time = get_time('time')
-        elif re.match(r'\d{2}:\d{2}', time) is None:
-            raise ValueError('Expected form of time: M:S, got: ' + time)
-
         def url_get(url):
             from urllib import request
             c = 10
@@ -376,87 +371,70 @@ You can use the export_all() and import_all() to export/import data.''')
                     c = c - 1
                     continue
 
-        def get_ip():
-            import re
-            txt = url_get('http://ip.chinaz.com/getip.aspx')
-            return re.search(rb'\d+\.\d+\.\d+\.\d+', txt).group().decode('utf-8')
-
         def get_location():
             # Accurate to city.
-            txt = url_get('http://ip.taobao.com/service/getIpInfo.php?ip=' + get_ip()).decode('utf-8')
+            txt = url_get('https://www.boip.net/api/json').decode('utf-8')
             import json
             d = json.loads(txt)
-            address = d['data']['country'] + d['data']['city']
-            return address
+            return d['city']
 
-        if location is None:
-            location = get_location()
+        def get_weather():
+            def process_weather_page(s):
+                try:
+                    import re
+                    s = re.search('<pre>.+</pre>', s, re.S).group().split('\n')[1:3]  # Find the useful 2 lines.
+                    s[0] = re.sub('<span .+</span>', '', s[0]).strip()  # Process the sky condition.
 
-        def get_weather(mode):
-            from geopy.geocoders import Nominatim
-            import geopy.exc
-            locator = Nominatim()
-            try:
-                loc = locator.geocode(location)
-            except geopy.exc:
-                # When geocoders are not working and raising an error:
-                if isinstance(location, dict):
-                    if location.get('latitude') is None or location.get('logitude') is None:
-                        loc = None
-                    else:
-                        from collections import namedtuple
-                        LocWrap = namedtuple('LocWrap', ['latitude', 'longitude'])
-                        loc = LocWrap(location['latitude'], location['longitude'])
-                else:
-                    loc = None
+                    # Find the temperature number(s).
+                    find = re.compile(r'<span class="ef\d{1,3}">-?\d{1,3}</span>')
+                    t = find.findall(s[1])
 
-            # Check if the get_location function returns the proper value and the locator can locate the address.
-            import msvcrt
-            while not loc:
-                print('Locate failed. Searched address: ' + location)
-                print('Retry(r) or Skip(s) or Type address(a) or Type latitude and longitude(l)?')
-                c = msvcrt.getch()
-                print(c.decode('utf-8'))
-                if c == b'r':
-                    loc = locator.geocode(location)
-                    continue
-                elif c == b's':
-                    if mode == 'weather':
-                        return input('Please type the weather: ')
-                    elif mode == 'temperature':
-                        return input('Please type the temperature: ')
-                elif c == b'a':
-                    loc = locator.geocode(input('Please input the address: '))
-                elif c == b'l':
-                    loc = dict()
-                    loc['latitude'] = input('Please input the latitude: ')
-                    loc['longitude'] = input('Please input the longitude: ')
-                    break
+                    # Get average of the temperature.
+                    for c in range(len(t)):
+                        t[c] = int(re.sub('<.+?>', '', t[c]))
+                    s[1] = sum(t) / len(t)
 
-            txt = url_get('http://api.openweathermap.org/data/2.5/weather?lang=zh_cn&units=metric' +
-                          '&appid=fad990484bb470678c2cd31936006982&lat=' + str(loc.latitude) +
-                          '&lon=' + str(loc.longitude)).decode('utf-8')
-            import json
-            txt = json.loads(txt)
-            if mode == 'weather':
-                return txt['weather'][0]['description']
-            elif mode == 'temperature':
-                return str(txt['main']['temp'])
+                    return s  # s[0] is sky condition, s[1] is the average temperature.
+                except:
+                    # If any error, return None.
+                    return None
+
+            if ' ' in location:
+                loc = '~' + re.sub(' ', '+', location)
+            else:
+                loc = location
+
+            txt = url_get('http://wttr.in/' + loc + '?0&Q&m').decode('utf-8')
+            return process_weather_page(txt)
+
+        if time is None:
+            time = get_time('time')
+        elif re.match(r'\d{2}:\d{2}', time) is None:
+            raise ValueError('Expected form of time: M:S, got: ' + time)
 
         r = dict()
 
         r['time'] = time
 
+        if location is None:
+            location = get_location()
+
         r['location'] = location
 
-        if weather is None:
-            r['weather'] = get_weather('weather')
+        if weather is None and temperature is None:
+            w = get_weather()
+            r['weather'] = w[0]
+            r['temperature'] = w[1]
+        elif weather is None:
+            w = get_weather()
+            r['weather'] = w[0]
+            r['temperature'] = temperature
+        elif temperature is None:
+            w = get_weather()
+            r['weather'] = weather
+            r['temperature'] = w[1]
         else:
             r['weather'] = weather
-
-        if temperature is None:
-            r['temperature'] = get_weather('temperature')
-        else:
             r['temperature'] = temperature
 
         r['tags'] = tags
