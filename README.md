@@ -1,4 +1,4 @@
-﻿# Diapy
+﻿# diapy
 A rough diary manager based on python.
 
 Diapy uses cryptography.fernet to encrypt your top secret.
@@ -6,7 +6,7 @@ Diapy uses cryptography.fernet to encrypt your top secret.
 ## Installation
 Simple, crude.
 
-    pip install Diapy
+    pip install diapy
 	
 ## Usage
 class Diary(path): The main instance. When path doesn't exist, it will ask you for the title of your new diary.
