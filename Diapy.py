@@ -21,6 +21,7 @@ import pickletools
 import re
 from urllib import request
 import json
+import random
 
 
 class Diary(object):
@@ -520,7 +521,6 @@ You can use the export_all() and import_all() to export/import data.''')
             self._content = content
             self._status = 'Unsaved'
 
-    def get_random(self):
+    def random(self):
         self.check()
-        import random
         return self.get(random.choice(list(self._content['data'].keys())))
