@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='diapy',
-    version='2.4.1',
+    version='2.5.0',
     description='A rough diary manager based on python.',
     long_description='''A rough diary manager based on python.
 Diapy uses cryptography.fernet to encrypt your top secret.''',
@@ -21,5 +21,5 @@ Diapy uses cryptography.fernet to encrypt your top secret.''',
     keywords='diary',
     packages=find_packages(),
     python_requires='>=3',
-    install_requires=['cryptography']
+    install_requires=['cryptography'],
 )
