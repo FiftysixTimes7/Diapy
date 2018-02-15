@@ -6,6 +6,8 @@ setup(
     name='diapy',
     version='2.4.1',
     description='A rough diary manager based on python.',
+    long_description='''A rough diary manager based on python.
+Diapy uses cryptography.fernet to encrypt your top secret.''',
     url='https://github.com/FiftysixTimes7/diapy',
     author='FiftysixTimes7(PTJ)',
     author_email='pangtj26@163.com',
