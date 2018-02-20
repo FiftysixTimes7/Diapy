@@ -476,12 +476,13 @@ You can use the export_all() and import_all() to export/import data.''')
             s = str(t.year - 1) + '12' + str(t.day).rjust(2, '0')
         else:
             s = str(t.year) + str(t.month - 1).rjust(2, '0') + str(t.day).rjust(2, '0')
-        r['a month ago'] = self.get(s)
+        if self.get(s):
+            r['a month ago'] = self.get(s)
 
         min_year = int(sorted(list(self.ls('year').keys()), key=int)[0])
         for year in range(min_year, t.year):
             s = str(year) + str(t.month).rjust(2, '0') + str(t.day).rjust(2, '0')
-            r['today in {}'.format(year)] = self.get(s)
+            r[f'today in {str(year)}'] = self.get(s)
 
         # Pop None.
         keys = list(r.keys())
