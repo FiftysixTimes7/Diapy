@@ -345,9 +345,9 @@ You can use the export_all() and import_all() to export/import data.''')
         def get_time(mode):
             dateobj = datetime.datetime.now()
             if mode == 'date':
-                return str(dateobj.year) + str(dateobj.month).rjust(2, '0') + str(dateobj.day).rjust(2, '0')
+                return str(dateobj.year) + str(dateobj.month).zfill(2) + str(dateobj.day).zfill(2)
             elif mode == 'time':
-                return str(dateobj.hour).rjust(2, '0') + ':' + str(dateobj.minute).rjust(2, '0')
+                return str(dateobj.hour).zfill(2) + ':' + str(dateobj.minute).zfill(2)
 
         def url_get(url):
             c = 10
@@ -469,19 +469,19 @@ You can use the export_all() and import_all() to export/import data.''')
         t = datetime.datetime.today()
         t1 = t - timedelta(weeks=1)
 
-        s = str(t1.year) + str(t1.month).rjust(2, '0') + str(t1.day).rjust(2, '0')
+        s = str(t1.year) + str(t1.month).zfill(2) + str(t1.day).zfill(2)
         r['a week ago'] = self.get(s)
 
         if t.month == 1:
-            s = str(t.year - 1) + '12' + str(t.day).rjust(2, '0')
+            s = str(t.year - 1) + '12' + str(t.day).zfill(2)
         else:
-            s = str(t.year) + str(t.month - 1).rjust(2, '0') + str(t.day).rjust(2, '0')
+            s = str(t.year) + str(t.month - 1).zfill(2) + str(t.day).zfill(2)
         if self.get(s):
             r['a month ago'] = self.get(s)
 
         min_year = int(sorted(list(self.ls('year').keys()), key=int)[0])
         for year in range(min_year, t.year):
-            s = str(year) + str(t.month).rjust(2, '0') + str(t.day).rjust(2, '0')
+            s = str(year) + str(t.month).zfill(2) + str(t.day).zfill(2)
             r[f'today in {str(year)}'] = self.get(s)
 
         # Pop None.
