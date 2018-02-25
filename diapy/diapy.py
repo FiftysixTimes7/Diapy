@@ -273,48 +273,20 @@ You can use the export_all() and import_all() to export/import data.''')
                                 r[t] = [k]
                             else:
                                 r[t].append(k)
-        elif mode == 'mood':
+        elif mode == 'mood' or mode == 'location' or mode == 'weather':
             if value is None:
                 for k in self._content['data']:
-                    if self._content['data'][k]['mood'] not in r:
-                        r[self._content['data'][k]['mood']] = [k]
+                    if self._content['data'][k][mode] not in r:
+                        r[self._content['data'][k][mode]] = [k]
                     else:
-                        r[self._content['data'][k]['mood']].append(k)
+                        r[self._content['data'][k][mode]].append(k)
             else:
                 for k in self._content['data']:
-                    if self._content['data'][k]['mood'] == value:
-                        if self._content['data'][k]['mood'] not in r:
-                            r[self._content['data'][k]['mood']] = [k]
+                    if self._content['data'][k][mode] == value:
+                        if self._content['data'][k][mode] not in r:
+                            r[self._content['data'][k][mode]] = [k]
                         else:
-                            r[self._content['data'][k]['mood']].append(k)
-        elif mode == 'location':
-            if value is None:
-                for k in self._content['data']:
-                    if self._content['data'][k]['location'] not in r:
-                        r[self._content['data'][k]['location']] = [k]
-                    else:
-                        r[self._content['data'][k]['location']].append(k)
-            else:
-                for k in self._content['data']:
-                    if self._content['data'][k]['location'] == value:
-                        if self._content['data'][k]['location'] not in r:
-                            r[self._content['data'][k]['location']] = [k]
-                        else:
-                            r[self._content['data'][k]['location']].append(k)
-        elif mode == 'weather':
-            if value is None:
-                for k in self._content['data']:
-                    if self._content['data'][k]['weather'] not in r:
-                        r[self._content['data'][k]['weather']] = [k]
-                    else:
-                        r[self._content['data'][k]['weather']].append(k)
-            else:
-                for k in self._content['data']:
-                    if self._content['data'][k]['weather'] == value:
-                        if self._content['data'][k]['weather'] not in r:
-                            r[self._content['data'][k]['weather']] = [k]
-                        else:
-                            r[self._content['data'][k]['weather']].append(k)
+                            r[self._content['data'][k][mode]].append(k)
         else:
             return self._content['data'].keys()
 
