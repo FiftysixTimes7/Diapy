@@ -322,27 +322,13 @@ You can use the export_all() and import_all() to export/import data.''')
                 return str(dateobj.hour).zfill(2) + ':' + str(dateobj.minute).zfill(2)
 
         def url_get(url):
-            c = 10
-            while True:
-                try:
-                    with request.urlopen(url) as f:
-                        txt = f.read()
-                    return txt
-                except:
-                    if c <= 0:
-                        c = input('Url:' + url + ' fetch error.' +
-                                  ' Do you want to try another 10 times? y/n ')
-                        if c in ['y', 'yes', 'Y' 'Yes']:
-                            c = 10
-                            continue
-                        else:
-                            break
-                    c = c - 1
-                    continue
+            with request.urlopen(url) as f:
+                txt = f.read()
+            return txt
 
         def get_location():
             # Accurate to city.
-            txt = url_get('https://www.boip.net/api/json').decode('utf-8')
+            txt = url_get('http://ip-api.com/json').decode('utf-8')
             d = json.loads(txt)
             return d['city']
 
@@ -376,6 +362,7 @@ You can use the export_all() and import_all() to export/import data.''')
 
         if time is None:
             time = get_time('time')
+            print('Auto get time', time)
         elif re.match(r'\d{2}:\d{2}', time) is None:
             raise ValueError('Expected form of time: M:S, got: ' + time)
 
@@ -385,21 +372,28 @@ You can use the export_all() and import_all() to export/import data.''')
 
         if location is None:
             location = get_location()
+            print('Auto get location', location)
 
         r['location'] = location
 
         if weather is None and temperature is None:
             w = get_weather()
             r['weather'] = w[0]
+            print('Auto get weather', w[0])
             r['temperature'] = w[1]
+            print('Auto get temperature', w[1])
         elif weather is None:
+            print('getting weather...')
             w = get_weather()
             r['weather'] = w[0]
+            print('Auto get weather', w[0])
             r['temperature'] = temperature
         elif temperature is None:
+            print('getting temperature...')
             w = get_weather()
             r['weather'] = weather
             r['temperature'] = w[1]
+            print('Auto get temperature', w[1])
         else:
             r['weather'] = weather
             r['temperature'] = temperature
