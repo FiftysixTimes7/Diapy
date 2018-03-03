@@ -3,11 +3,11 @@
 
 """
 diapy - A diary manager based on python.
-Version Release 2.5.1
+Version Release 2.5.2
 """
 
 __author__ = 'FiftysixTimes7(PTJ)'
-__version__ = 'Release 2.5.1'
+__version__ = 'Release 2.5.2'
 
 import datetime
 import msvcrt
