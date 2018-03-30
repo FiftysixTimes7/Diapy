@@ -197,13 +197,8 @@ You can use the export_all() and import_all() to export/import data.''')
             # Get several dates in a list.
             r = []
             for date in dates:
-                if isinstance(date, int):
-                    date = str(date)
-                if self._content['data'].get(date) is None:
-                    r.append(None)
-                d = self._content['data'][date]
-                r.append(self.DiarySpecific(self.path, d['content'], d['tags'], d['mood'], date, d['time'],
-                                            d['location'], d['weather'], d['temperature'], d['file']))
+                r.append(self.get(date))
+            return r
 
     def ls(self, mode=None, value=None, specific=True):
         self.check()
