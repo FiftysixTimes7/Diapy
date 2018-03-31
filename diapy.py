@@ -22,6 +22,7 @@ import re
 from urllib import request
 import json
 import random
+import getpass
 
 
 class Diary(object):
@@ -81,21 +82,10 @@ class Diary(object):
 
     def _input_pwd(self, text):
         # Input password.
-        pwd = b''
-        print(text, end='\r')
-        while True:
-            t = msvcrt.getch()
-            if t == b'\r':
-                break
-            elif t == b'\x08':
-                pwd = pwd[:-1]
-            else:
-                pwd += t
-            print(text, '*' * len(pwd), end=' \r')
-        print()
+        pwd = getpass.getpass(text)
 
         # Process password to key.
-        self._key = base64.urlsafe_b64encode(hashlib.sha256(pwd).digest())
+        self._key = base64.urlsafe_b64encode(hashlib.sha256(pwd.encode('utf-8')).digest())
 
     def change_pwd(self):
         self.check()
