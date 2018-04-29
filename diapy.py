@@ -28,8 +28,7 @@ import getpass
 class Diary(object):
     # Class the instance which will be returned in get function.
     class DiarySpecific(object):
-        def __init__(self, path, content, tags, mood, date, time, location, weather, temperature):
-            self._path = path
+        def __init__(self, content, tags, mood, date, time, location, weather, temperature):
             self.content = content
             self.tags = tags
             self.mood = mood
@@ -171,7 +170,7 @@ You can use the export_all() and import_all() to export/import data.''')
             if self._content['data'].get(dates) is None:
                 return None
             d = self._content['data'][dates]
-            return self.DiarySpecific(self.path, d['content'], d['tags'], d['mood'], dates, d['time'],
+            return self.DiarySpecific(d['content'], d['tags'], d['mood'], dates, d['time'],
                                       d['location'], d['weather'], d['temperature'])
         else:
             # Get several dates in a list.
@@ -186,9 +185,7 @@ You can use the export_all() and import_all() to export/import data.''')
 
         # Check the value.
         if isinstance(value, int):
-            value = str(value)
-            if len(value) == 1:
-                value = '0' + value
+            value = str(value).zfill(2)
 
         if mode == 'year':
             if value is None:
@@ -291,9 +288,9 @@ You can use the export_all() and import_all() to export/import data.''')
         def get_time(mode):
             dateobj = datetime.datetime.now()
             if mode == 'date':
-                return str(dateobj.year) + str(dateobj.month).zfill(2) + str(dateobj.day).zfill(2)
+                return dateobj.strftime('%Y%m%d')
             elif mode == 'time':
-                return str(dateobj.hour).zfill(2) + ':' + str(dateobj.minute).zfill(2)
+                return dateobj.strftime('%H:%M')
 
         def url_get(url, timeout=None):
             with request.urlopen(url, timeout=timeout) as f:
@@ -335,8 +332,8 @@ You can use the export_all() and import_all() to export/import data.''')
             return process_weather_page(txt)
 
         if time is None:
+            print('Auto fetching time...')
             time = get_time('time')
-            print('Auto get time', time)
         elif re.match(r'\d{2}:\d{2}', time) is None:
             raise ValueError('Expected form of time: M:S, got: ' + time)
 
@@ -345,29 +342,27 @@ You can use the export_all() and import_all() to export/import data.''')
         r['time'] = time
 
         if location is None:
+            print('Auto fetching location...')
             location = get_location()
-            print('Auto get location', location)
 
         r['location'] = location
 
         if weather is None and temperature is None:
+            print('Auto fetching weather...')
             w = get_weather()
             r['weather'] = w[0]
-            print('Auto get weather', w[0])
+            print('Auto fetching temperature...')
             r['temperature'] = w[1]
-            print('Auto get temperature', w[1])
         elif weather is None:
-            print('getting weather...')
+            print('Auto fetching weather...')
             w = get_weather()
             r['weather'] = w[0]
-            print('Auto get weather', w[0])
             r['temperature'] = temperature
         elif temperature is None:
-            print('getting temperature...')
+            print('Auto fetching temperature...')
             w = get_weather()
             r['weather'] = weather
             r['temperature'] = w[1]
-            print('Auto get temperature', w[1])
         else:
             r['weather'] = weather
             r['temperature'] = temperature
@@ -383,7 +378,7 @@ You can use the export_all() and import_all() to export/import data.''')
             if not isinstance(date, str):
                 date = str(date)
             if re.match(r'\d{8}', date) is None:
-                raise ValueError('Expected form of date: yyyyMMdd, got: ' + date)
+                raise ValueError('Expected form of date: %Y%m%d, got: ' + date)
             self._content['data'][date] = r
 
         self._status = 'Unsaved'
