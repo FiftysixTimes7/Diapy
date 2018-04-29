@@ -442,6 +442,8 @@ You can use the export_all() and import_all() to export/import data.''')
                 print(c.decode('utf-8'))
                 if c == b'y':
                     self._key = content.pop('key')
+                else:
+                    content.pop('key')
             self._content = content
             self._status = 'Unsaved'
 
