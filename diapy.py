@@ -28,7 +28,7 @@ import getpass
 class Diary(object):
     # Class the instance which will be returned in get function.
     class DiarySpecific(object):
-        def __init__(self, path, content, tags, mood, date, time, location, weather, temperature, file):
+        def __init__(self, path, content, tags, mood, date, time, location, weather, temperature):
             self._path = path
             self.content = content
             self.tags = tags
@@ -38,7 +38,6 @@ class Diary(object):
             self.location = location
             self.weather = weather
             self.temperature = temperature
-            self.file = file
 
         def __str__(self):
             r = ''
@@ -54,20 +53,11 @@ class Diary(object):
             r += 'Weather: ' + self.weather + '\n'
             r += 'Temperature: ' + str(self.temperature) + ' Degree Celsius\n'
             r += 'Mood: ' + self.mood + '\n'
-            if self.file:
-                r += 'Extra-File: ' + self.file['name'] + '\n'
             r += 'Tags: ' + str(self.tags) + '\n'
             r += 'Content: ' + self.content
             return r
 
         __repr__ = __str__
-
-        def save_file(self):
-            if not self.file:
-                raise FileNotFoundError('No file for this diary.')
-            else:
-                with open(self._path[:self._path.strip('\\').rfind('\\') + 1] + self.file['name'], 'wb') as f:
-                    f.write(self.file['content'])
 
     def __init__(self, path):
         self.path = path
@@ -182,7 +172,7 @@ You can use the export_all() and import_all() to export/import data.''')
                 return None
             d = self._content['data'][dates]
             return self.DiarySpecific(self.path, d['content'], d['tags'], d['mood'], dates, d['time'],
-                                      d['location'], d['weather'], d['temperature'], d['file'])
+                                      d['location'], d['weather'], d['temperature'])
         else:
             # Get several dates in a list.
             r = []
@@ -295,8 +285,7 @@ You can use the export_all() and import_all() to export/import data.''')
         self._status = 'Unsaved'
         return self._content['data'].pop(date)
 
-    def new(self, content, tags, mood, date=None, time=None, location=None, weather=None, temperature=None,
-            file=None):
+    def new(self, content, tags, mood, date=None, time=None, location=None, weather=None, temperature=None,):
         self.check()
 
         def get_time(mode):
@@ -386,18 +375,6 @@ You can use the export_all() and import_all() to export/import data.''')
         r['tags'] = tags
         r['content'] = content
         r['mood'] = mood
-
-        if file:
-            if os.path.isfile(file):
-                text = {'name': file[file.strip('\\').rfind('\\') + 1:]}
-                with open(file, 'rb') as f:
-                    text['content'] = f.read()
-            else:
-                print('File not exist. Will not add file into diary.')
-                text = {}
-        else:
-            text = {}
-        r['file'] = text
 
         if date is None:
             date = get_time('date')
