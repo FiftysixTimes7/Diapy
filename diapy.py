@@ -295,14 +295,14 @@ You can use the export_all() and import_all() to export/import data.''')
             elif mode == 'time':
                 return str(dateobj.hour).zfill(2) + ':' + str(dateobj.minute).zfill(2)
 
-        def url_get(url):
-            with request.urlopen(url) as f:
+        def url_get(url, timeout=None):
+            with request.urlopen(url, timeout=timeout) as f:
                 txt = f.read()
             return txt
 
         def get_location():
             # Accurate to city.
-            txt = url_get('http://ip-api.com/json').decode('utf-8')
+            txt = url_get('http://ip-api.com/json', timeout=15).decode('utf-8')
             d = json.loads(txt)
             return d['city']
 
@@ -331,7 +331,7 @@ You can use the export_all() and import_all() to export/import data.''')
             else:
                 loc = location
 
-            txt = url_get('http://wttr.in/' + loc + '?0&Q&m').decode('utf-8')
+            txt = url_get('http://wttr.in/' + loc + '?0&Q&m', timeout=15).decode('utf-8')
             return process_weather_page(txt)
 
         if time is None:
