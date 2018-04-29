@@ -156,7 +156,7 @@ class Diary(object):
             if v != __version__:
                 print(f'''Warning: File created by DMS v{v} may not be open properly on current version.
 Please adjust the file manually.
-If you update the file correctly, the version will auto change into current one.
+If you update the file correctly, the version will auto change into current one while saving.
 You can use the export_all() and import_all() to export/import data.''')
                 self._status = 'Unsaved'
             return self._status
