@@ -1,14 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-diapy - A diary manager based on python.
-Version Release 2.6.0
-"""
-
-__author__ = 'FiftysixTimes7(PTJ)'
-__version__ = 'Release 2.6.0'
-
 import datetime
 import msvcrt
 import hashlib
@@ -23,6 +12,8 @@ from urllib import request
 import json
 import random
 import getpass
+
+__version__ = 'Release 2.6.0'
 
 
 class Diary(object):
