@@ -1,5 +1,4 @@
 import datetime
-import msvcrt
 import hashlib
 import base64
 from cryptography.fernet import Fernet
@@ -13,7 +12,7 @@ import json
 import random
 import getpass
 
-__version__ = 'Release 2.6.0'
+__version__ = 'Release 2.6.1'
 
 
 class Diary(object):
@@ -119,11 +118,10 @@ class Diary(object):
         # Check if saved.
         if self._status == 'Unsaved':
             print('Do you want to save the file before closing it?(y/n/c(cancel))')
-            c = msvcrt.getch()
-            print(c.decode('utf-8'))
-            if c == b'y':
+            c = input()
+            if c == 'y':
                 self.save()
-            elif c == b'c':
+            elif c == 'c':
                 return
 
         # Delete data.
@@ -411,9 +409,8 @@ You can use the export_all() and import_all() to export/import data.''')
 
         # Ask if export the key.
         print('Do you want to export the key?(y/n)')
-        c = msvcrt.getch()
-        print(c.decode('utf-8'))
-        if c == b'y':
+        c = input()
+        if c == 'y':
             r['key'] = self._key
 
         return r
@@ -423,15 +420,13 @@ You can use the export_all() and import_all() to export/import data.''')
 
         # Confirm.
         print('This will over-write your current file. Do you want to continue?(y/n)')
-        c = msvcrt.getch()
-        print(c.decode('utf-8'))
-        if c == b'y':
+        c = input()
+        if c == 'y':
             if content.get('key'):
                 # Ask if import the key.
                 print('Do you want to import the key?(y/n)')
-                c = msvcrt.getch()
-                print(c.decode('utf-8'))
-                if c == b'y':
+                c = input()
+                if c == 'y':
                     self._key = content.pop('key')
                 else:
                     content.pop('key')
