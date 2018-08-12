@@ -5,8 +5,8 @@ from setuptools import setup
 setup(
     name='diapy',
     version='3.0.0a',
-    description='A rough diary manager based on python.',
-    long_description='''A rough diary manager based on python.
+    description='A small diary manager based on python.',
+    long_description='''A small diary manager based on python.
 Diapy uses cryptography.fernet to encrypt your top secret.''',
     url='https://github.com/FiftysixTimes7/diapy',
     author='FiftysixTimes7(PTJ)',

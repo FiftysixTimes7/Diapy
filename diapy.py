@@ -101,7 +101,7 @@ class Diary(object):
     def key(self, date=None):
         table = {}
         for key in self._content.keys():
-            # Convert to an 8 digest int
+            # Convert to an 8 digit int
             date = int(datetime.fromtimestamp(
                 key).date().strftime('%Y%m%d'))
             table[date] = key
