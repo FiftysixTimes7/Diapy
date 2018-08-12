@@ -1,16 +1,24 @@
 import base64
-import datetime
 import getpass
 import hashlib
-import json
 import os
 import pickle
 import pickletools
 import random
 import re
+from datetime import datetime
 from cryptography.fernet import Fernet
 
 __version__ = '3.0.0a'
+
+
+def _opened(func):
+    def wrapper(*arg, **kw):
+        if not arg[0].closed:
+            return func(*arg, **kw)
+        else:
+            raise ValueError('File closed.')
+    return wrapper
 
 
 class Diary(object):
@@ -21,7 +29,7 @@ class Diary(object):
             self.content = content
 
         def __str__(self):
-            datetimeobj = datetime.datetime.fromtimestamp(self.timestamp)
+            datetimeobj = datetime.fromtimestamp(self.timestamp)
 
             # Calculate date and weekday.
             date = datetimeobj.date()
@@ -29,17 +37,9 @@ class Diary(object):
                         'Thursday', 'Friday', 'Saturday', 'Sunday']
 
             return str(datetimeobj) + ' ' + \
-                weekdays[datetime.date.weekday(date) - 1] + '\n' + self.content
+                weekdays[datetime.weekday(date) - 1] + '\n' + self.content
 
         __repr__ = __str__
-
-    def _opened(self, func):
-        def wrapper(*arg, **kw):
-            if not self.closed:
-                func(*arg, **kw)
-            else:
-                raise ValueError('File closed.')
-        return wrapper
 
     def __init__(self, path):
         self.path = path
@@ -58,7 +58,7 @@ class Diary(object):
         # Check if this is a new file.
         if text == b'':
             self._content = {}
-            self.save()
+            self._save()
         else:
             f = Fernet(self._key)
             self._content = pickle.loads(
@@ -82,16 +82,16 @@ class Diary(object):
     @_opened
     def change_pwd(self):
         self._input_pwd('Please input the new password: ')
+        self._save()
 
     @_opened
-    def save(self):
+    def _save(self):
         f = Fernet(self._key)
-        with open(self.path, 'wb') as f:
-            # Dump, optimize, compress, encrypt, decode.
-            f.write(base64.urlsafe_b64decode(f.encrypt(
+        with open(self.path, 'wb') as file:
+            # Dump, optimize, encrypt, decode.
+            file.write(base64.urlsafe_b64decode(f.encrypt(
                 pickletools.optimize(pickle.dumps(self._content, 4)))))
 
-    @_opened
     def close(self):
         self._key = None
         self._content = None
@@ -102,7 +102,7 @@ class Diary(object):
         table = {}
         for key in self._content.keys():
             # Convert to an 8 digest int
-            date = int(datetime.datetime.fromtimestamp(
+            date = int(datetime.fromtimestamp(
                 key).date().strftime('%Y%m%d'))
             table[date] = key
 
@@ -114,11 +114,11 @@ class Diary(object):
     @_opened
     def new(self, content, datetimeobj=None):
         if not datetimeobj:
-            datetimeobj = datetime.datetime.now()
+            datetimeobj = datetime.now()
 
         date = int(datetimeobj.timestamp())
         self._content[date] = content
-        self.save()
+        self._save()
 
         print(self[date])
 
@@ -133,8 +133,8 @@ class Diary(object):
         c = input()
         if c == 'y':
             self._content = content
-            self.save()
+            self._save()
 
     @_opened
     def random(self):
-        return self[random.choice(list(self._content['data'].keys()))]
+        return self[random.choice(list(self._content.keys()))]

@@ -20,6 +20,6 @@ Diapy uses cryptography.fernet to encrypt your top secret.''',
                  'Topic :: Utilities'],
     keywords='diary',
     py_modules=['diapy'],
-    python_requires='>=3.6',
+    python_requires='>=3.6.0',
     install_requires=['cryptography'],
 )
