@@ -18,7 +18,8 @@ __version__ = 'Release 2.6.1'
 class Diary(object):
     # Class the instance which will be returned in get function.
     class DiarySpecific(object):
-        def __init__(self, content, tags, mood, date, time, location, weather, temperature):
+        def __init__(self, content, tags, mood, date,
+                     time, location, weather, temperature):
             self.content = content
             self.tags = tags
             self.mood = mood
@@ -34,9 +35,11 @@ class Diary(object):
             # Calculate date and weekday.
             date = datetime.datetime.strptime(self.date, '%Y%m%d')
             date = datetime.date(date.year, date.month, date.day)
-            week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            week = ['Monday', 'Tuesday', 'Wednesday',
+                    'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-            r += 'Date: ' + str(date) + ' ' + week[datetime.date.weekday(date)] + '\n'
+            r += 'Date: ' + str(date) + ' ' + \
+                week[datetime.date.weekday(date)] + '\n'
             r += 'Time: ' + self.time + '\n'
             r += 'Location: ' + str(self.location) + '\n'
             r += 'Weather: ' + self.weather + '\n'
@@ -64,7 +67,8 @@ class Diary(object):
         pwd = getpass.getpass(text)
 
         # Process password to key.
-        self._key = base64.urlsafe_b64encode(hashlib.sha256(pwd.encode('utf-8')).digest())
+        self._key = base64.urlsafe_b64encode(
+            hashlib.sha256(pwd.encode('utf-8')).digest())
 
     def change_pwd(self):
         self.check()
@@ -117,7 +121,8 @@ class Diary(object):
     def close(self):
         # Check if saved.
         if self._status == 'Unsaved':
-            print('Do you want to save the file before closing it?(y/n/c(cancel))')
+            print('Do you want to save the file '
+                  'before closing it?(y/n/c(cancel))')
             c = input()
             if c == 'y':
                 self.save()
@@ -134,7 +139,8 @@ class Diary(object):
             raise ValueError('File closed.')
         elif not hasattr(self, '_key') or not isinstance(self._key, bytes):
             raise ValueError('Key error.')
-        elif not hasattr(self, '_content') or not isinstance(self._content, dict):
+        elif (not hasattr(self, '_content') or
+              not isinstance(self._content, dict)):
             raise ValueError('Context error.')
         else:
             # Version check.
@@ -143,9 +149,11 @@ class Diary(object):
                 v = self._content['info']
                 v = v[v.rfind(' ', 0, v.rfind(' ')) + 1:]
             if v != __version__:
-                print(f'''Warning: File created by DMS v{v} may not be open properly on current version.
+                print(f'''Warning: File created by DMS v{v} may not be opened
+properly on current version.
 Please adjust the file manually.
-If you update the file correctly, the version will auto change into current one while saving.
+If you update the file correctly, the version will auto change into current
+one while saving.
 You can use the export_all() and import_all() to export/import data.''')
                 self._status = 'Unsaved'
             return self._status
@@ -159,8 +167,10 @@ You can use the export_all() and import_all() to export/import data.''')
             if self._content['data'].get(dates) is None:
                 return None
             d = self._content['data'][dates]
-            return self.DiarySpecific(d['content'], d['tags'], d['mood'], dates, d['time'],
-                                      d['location'], d['weather'], d['temperature'])
+            return self.DiarySpecific(d['content'], d['tags'], d['mood'],
+                                      dates, d['time'],
+                                      d['location'], d['weather'],
+                                      d['temperature'])
         else:
             # Get several dates in a list.
             r = []
@@ -271,7 +281,8 @@ You can use the export_all() and import_all() to export/import data.''')
         self._status = 'Unsaved'
         return self._content['data'].pop(date)
 
-    def new(self, content, tags, mood, date=None, time=None, location=None, weather=None, temperature=None,):
+    def new(self, content, tags, mood, date=None, time=None,
+            location=None, weather=None, temperature=None,):
         self.check()
 
         def get_time(mode):
@@ -295,11 +306,15 @@ You can use the export_all() and import_all() to export/import data.''')
         def get_weather():
             def process_weather_page(s):
                 try:
-                    s = re.search('<pre>.+</pre>', s, re.S).group().split('\n')[1:3]  # Find the useful 2 lines.
-                    s[0] = re.sub('<span .+</span>', '', s[0]).strip()  # Process the sky condition.
+                    # Find the useful 2 lines.
+                    s = re.search('<pre>.+</pre>', s,
+                                  re.S).group().split('\n')[1:3]
+                    # Process the sky condition.
+                    s[0] = re.sub('<span .+</span>', '', s[0]).strip()
 
                     # Find the temperature number(s).
-                    find = re.compile(r'<span class="ef\d{1,3}">-?\d{1,3}</span>')
+                    find = re.compile(
+                        r'<span class="ef\d{1,3}">-?\d{1,3}</span>')
                     t = find.findall(s[1])
 
                     # Get average of the temperature.
@@ -307,7 +322,8 @@ You can use the export_all() and import_all() to export/import data.''')
                         t[c] = int(re.sub('<.+?>', '', t[c]))
                     s[1] = sum(t) / len(t)
 
-                    return s  # s[0] is sky condition, s[1] is the average temperature.
+                    # s[0] is sky condition, s[1] is the average temperature.
+                    return s
                 except:
                     # If any error, return None.
                     return None
@@ -317,7 +333,8 @@ You can use the export_all() and import_all() to export/import data.''')
             else:
                 loc = location
 
-            txt = url_get('http://wttr.in/' + loc + '?0&Q&m', timeout=15).decode('utf-8')
+            txt = url_get('http://wttr.in/' + loc + '?0&Q&m',
+                          timeout=15).decode('utf-8')
             return process_weather_page(txt)
 
         if time is None:
@@ -419,7 +436,8 @@ You can use the export_all() and import_all() to export/import data.''')
         self.check()
 
         # Confirm.
-        print('This will over-write your current file. Do you want to continue?(y/n)')
+        print('This will over-write your current file. '
+              'Do you want to continue?(y/n)')
         c = input()
         if c == 'y':
             if content.get('key'):
