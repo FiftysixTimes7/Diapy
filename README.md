@@ -1,4 +1,6 @@
 ﻿# diapy
+>Version 3.0.0b
+
 A small diary manager based on python.
 
 Diapy uses `cryptography.fernet` to encrypt your top secret.
@@ -18,7 +20,19 @@ Firstly, you need to create a new diary file. Or you can open an exist file. The
 You can save your today's diary without inputing dates.
 
     >>> d.new('Today is a good day!')
+    2018-08-12 18:37:02 Saturday
+    Today is a good day!
     >>>
+If you have written a diary on the same day, you will be asked to choose.
+
+    >>> d.new('I forget writing diary or not.')
+    You have written a diary today:
+    2018-08-12 18:37:02 Saturday
+    Today is a good day!
+
+    Do you want to overwrite, discard changes or merge them together?
+    (overwrite/discard/merge) Default: discard
+    merge # If you input merge, diapy will keep your diary after the previous one. The time will use the current one.
 If you forget to write a diary yesterday, you can give a datetime object to the function.
 
     >>> from datetime import datetime
@@ -32,19 +46,24 @@ You can access your diary by a 8 digit number.
     >>> d[20180812]
     2018-08-12 18:37:02 Saturday
     Today is a good day!
+If you wonders how many diaries you have written, you can use the key function.
+
+    >>> d.key()
+    [20180812, 20180811]
+    >>>
 You can change your password.
 (Not working if you forget your password. 2333)
 
     >>> d.change_pwd()
     Please input the new password: 
     >>>
-Exporting and importing diaries. It is often used when you wanted to do something directly to your diary.
+Exporting and importing diaries. It is often used when you wanted to do something directly to your diary. It is **not recommended** in most cases.
 
 **Notice! It will expose your secrets! Import operation will overwrite your current diary!**
 
-    >>> d.export_content()
+    >>> d._content
     {1534070222: 'Today is a good day!'}
-    >>> d.import_content({1534070222: 'Today is a bad day!'})
+    >>> d._content = {1534070222: 'Today is a bad day!'}
     >>>
 To get a random diary entry.
 

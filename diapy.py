@@ -9,10 +9,10 @@ import re
 from datetime import datetime
 from cryptography.fernet import Fernet
 
-__version__ = '3.0.0a'
+__version__ = '3.0.0b'
 
 
-def _opened(func):
+def opened(func):
     def wrapper(*arg, **kw):
         if not arg[0].closed:
             return func(*arg, **kw)
@@ -64,7 +64,7 @@ class Diary(object):
             self._content = pickle.loads(
                 f.decrypt(base64.urlsafe_b64encode(text)))
 
-    @_opened
+    @opened
     def __getitem__(self, item):
         timestamp = self.key(item)
         if self._content.get(timestamp) is None:
@@ -79,12 +79,12 @@ class Diary(object):
         self._key = base64.urlsafe_b64encode(
             hashlib.sha256(pwd.encode('utf-8')).digest())
 
-    @_opened
+    @opened
     def change_pwd(self):
         self._input_pwd('Please input the new password: ')
         self._save()
 
-    @_opened
+    @opened
     def _save(self):
         f = Fernet(self._key)
         with open(self.path, 'wb') as file:
@@ -97,44 +97,46 @@ class Diary(object):
         self._content = None
         self.closed = True
 
-    @_opened
+    @opened
     def key(self, date=None):
         table = {}
-        for key in self._content.keys():
+        for k in self._content.keys():
             # Convert to an 8 digit int
-            date = int(datetime.fromtimestamp(
-                key).date().strftime('%Y%m%d'))
-            table[date] = key
+            d = int(datetime.fromtimestamp(
+                k).date().strftime('%Y%m%d'))
+            table[d] = k
 
         if date:
             return table[date]
         else:
             return list(table.keys())
 
-    @_opened
+    @opened
     def new(self, content, datetimeobj=None):
         if not datetimeobj:
             datetimeobj = datetime.now()
 
-        date = int(datetimeobj.timestamp())
-        self._content[date] = content
+        time = int(datetimeobj.timestamp())
+        date = int(datetime.fromtimestamp(
+                time).date().strftime('%Y%m%d'))
+        if date in self.key():
+            print('You have written a diary today:')
+            print(self[date])
+            print('''
+Do you want to overwrite, discard changes or merge them together?
+(overwrite/discard/merge) Default: discard''')
+            c = input()
+            if c == 'overwrite':
+                pass
+            elif c == 'merge':
+                content = self[date].content + '\n' + content
+            else:
+                return
+        self._content[time] = content
         self._save()
 
         print(self[date])
 
-    @_opened
-    def export_content(self):
-        return self._content
-
-    @_opened
-    def import_content(self, content):
-        print('This will over-write your current file. '
-              'Do you want to continue?(y/n)')
-        c = input()
-        if c == 'y':
-            self._content = content
-            self._save()
-
-    @_opened
+    @opened
     def random(self):
         return self[random.choice(list(self._content.keys()))]
