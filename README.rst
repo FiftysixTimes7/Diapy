@@ -1,9 +1,11 @@
 diapy
 =====
 
-A rough diary manager based on python.
+    Version 3.0.0
 
-Diapy uses cryptography.fernet to encrypt your top secret.
+A small diary manager based on python.
+
+Diapy uses ``cryptography.fernet`` to encrypt your top secret.
 
 Installation
 ------------
@@ -17,84 +19,147 @@ Simple, crude.
 Usage
 -----
 
-class Diary(path): The main instance. When path doesn't exist, it will
-ask you for the title of your new diary.
+Firstly, you need to create a new diary file. Or you can open an exist
+file. There isn't much difference.
 
-Diary.DiarySpecific: The diary handler returned by get function.
+::
 
-Diary.DiarySpecific.save\_file(path): You can save a file from a diary
-with file.
+    >>> from diapy import Diary
+    >>> d = Diary('new.diary')
+    Please input the main password: # Enter your password here! No one will see it.
+    >>>
 
-Diary.change\_pwd(): Change the main password of an opened file.
+You can keep your today's diary without inputing dates.
 
-Diary.save(): Save a diary to the file on your hard-disk.
+::
 
-Diary.close(): Close a diary. After closing, you can't edit the diary.
+    >>> d.new('Today is a good day!')
+    2018-08-12 18:37:02 Sunday
+    Today is a good day!
+    >>>
 
-Diary.get(date(s)): Date can both be a string/int length of 8 like
-'20180214' or a list contains dates.
+If you have written a diary on the same day, you will be asked to
+choose.
 
-Diary.ls(mode=None, value=None, specific=True): - mode: None: returns
-every date in record. 'year': classify by year, you can also change year
-to month, date, tags, mood, location and weather.
+::
 
--  value: None: returns everything exists. Others: depends on modes you
-   choose. You can set a value so ls can only return diaries match the
-   value.
+    >>> d.new('I forget writing diary or not.')
+    You have written a diary today:
+    2018-08-12 18:37:02 Sunday
+    Today is a good day!
 
--  specific: True: returns dates. False: returns the number of diary in
-   each class.
+    Do you want to overwrite, discard changes or merge them together?
+    (overwrite/discard/merge) Default: discard
+    merge # If you input merge, diapy will keep your diary after the previous one. The time will use the current one.
+    2018-08-12 19:18:07 Sunday
+    Today is a good day!
+    I forget writing diary or not.
 
-Diary.edit(date, key, value): Edit one value of a date. Such as:
-edit('20180214', 'mood', 'ffffffff'), and it will change the mood of
-20180214 to ffffffff.
+If you forget to write a diary yesterday, you can give a datetime object
+to the function.
 
-Diary.delete(date): Delete one diary of the date. **This is dangerous!**
+::
 
-Diary.new(content, tags, mood, date=None, time=None, location=None,
-weather=None, temperature=None, file=None): - content: Your content of
-this diary.
+    >>> from datetime import datetime
+    >>> yesterday = datetime(2018, 8, 11, 19, 34)
+    >>> d.new('OOPS, I forgot to write my diary yesterday!', yesterday)
+    2018-08-11 19:34:00 Saturday
+    OOPS, I forgot to write my diary yesterday!
+    >>>
 
--  tags: Should be a list.
+You can access your diary by a 8 digit key.
 
--  date: Should be a string like '20180214'
+::
 
--  time: Should be a string like '23:01'
+    >>> d[20180812]
+    2018-08-12 18:37:02 Sunday
+    Today is a good day!
+    >>>
 
--  location: Should be a string.
+Actually, it returns an ``Entry`` object.
 
--  weather: Should be a string.
+::
 
--  temperature: Should be a str/int.
+    >>> e = d[20180812]
+    >>> e.timestamp
+    1534072687
+    >>> e.content
+    'Today is a good day!\nI forget writing diary or not.'
+    >>>
 
--  file: An additional file. Can be a photo, a text or any files
-   **exists**.
+If you wonders how many diaries you have written, you can use the
+``key`` function.
 
-Defalt None value: Diapy will try to fetch the info itself. That's
-convenient.
+::
 
-Diary.recall(): Get a list of diary that are exactly a week/month/year
-or several years ago.
+    >>> d.key()
+    [20180812, 20180811]
+    >>>
 
-Diary.export\_all(): Export your diary. Returns a dict. You can choose
-whether to export your key at the same time.
+You can change your password. (Not working if you forget your password.
+2333)
 
-Diary.import\_all(): Import diary that are exported by export\_all
-function. **This will over-write your current diary!**
+::
 
-Diary.random(): Get a random diary.
+    >>> d.change_pwd()
+    Please input the new password: 
+    >>>
+
+To get a random diary entry.
+
+::
+
+    >>> d.random()
+    2018-08-12 19:18:07 Sunday
+    Today is a good day!
+    I forget writing diary or not.
+    >>>
+
+Search text in your diaries.
+
+::
+
+    >>> d.search('day')
+    2018-08-12 19:18:07 Sunday
+    Today is a good day!
+    I forget writing diary or not.
+
+    2018-08-11 19:34:00 Saturday
+    OOPS, I forgot to write my diary yesterday!
+
+    >>>
+
+Exporting and importing diaries. It is often used when you wanted to do
+something directly to your diary. It is **not recommended** in most
+cases.
+
+**Notice! It will expose your secrets! Import operation will overwrite
+your current diary!**
+
+::
+
+    >>> d._content
+    {1534072687: 'Today is a good day!\nI forget writing diary or not.', 1533987240: 'OOPS, I forgot to write my diary yesterday!'}
+    >>> d._content = {1534072687: 'Today is a bad day!\nI forget writing diary or not.', \
+    ...     1533987240: 'OOPS, I forgot to write my diary yesterday!'}
+    >>>
+
+When all done, save changes by the close function.
+
+**Don't exit without the close function! Or your changes will not be
+saved.**
+
+::
+
+    >>> d.close()
+    >>>
 
 About
 -----
 
-I am a secondary school student in China, and **i know my English is not
-very good**. So if someone wants to **improve this document** i will
-thank a lot! ## About(Chinese)
-总算可以用中文写了。。。我还是个英语不好的孩子，如果看到上面的渣翻译有什么语法错误，各种错误请一定要指出！
-
-什么，你问我为啥不写中文文档？因为我懒OTZ
-
-第一次在github上传代码，我好方。。。如果有大佬来改进我的代码，我一定感激不尽。。。
+I am a secondary school student in China, and **I know my English is not
+very good**. So if someone wants to **improve this** I will thank a lot!
+## About(Chinese)
 
 Contributing
 ------------
@@ -105,8 +170,7 @@ will wait for your pull requests!
 Donating
 --------
 
-...OK. That's actually unbeleavable that you will donate to my rough
-code...
+...OK. That's unbeleavable that you will donate to my rough code...
 
-I don't even have an account for donating 233. If you want, you can
-choose to contribute or give me some advice.
+I don't even have an account for donating 233. If you want to encourage
+me, you can choose to give me some advice.~
