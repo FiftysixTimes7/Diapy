@@ -7,7 +7,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name='diapy',
-    version='3.0.1',
+    version='3.0.2',
     description='A small diary manager based on python.',
     long_description=readme,
     long_description_content_type='text/markdown',
