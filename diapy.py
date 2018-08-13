@@ -9,7 +9,7 @@ import re
 from datetime import datetime
 from cryptography.fernet import Fernet
 
-__version__ = '3.0.0'
+__version__ = '3.0.1'
 
 
 def opened(func):

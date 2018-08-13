@@ -2,16 +2,12 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
-try:
-    with open('README.md') as f:
-        readme = f.read()
-except:
-    readme = '''A small diary manager based on python.
-Diapy uses cryptography.fernet to encrypt your top secret.'''
+with open('README.md', encoding='utf-8') as f:
+    readme = f.read()
 
 setup(
     name='diapy',
-    version='3.0.0',
+    version='3.0.1',
     description='A small diary manager based on python.',
     long_description=readme,
     long_description_content_type='text/markdown',
