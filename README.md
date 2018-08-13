@@ -104,7 +104,6 @@ When all done, save changes by the close function.
     >>>
 ## About
 I am a secondary school student in China, and **I know my English is not very good**. So if someone wants to **improve this** I will thank a lot!
-## About(Chinese)
 
 ## Contributing
 I know, my code is bad too... You can improve it any time you want. I will wait for your pull requests!
