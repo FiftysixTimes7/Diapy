@@ -1,7 +1,7 @@
 ﻿# diapy
 >Version 3.0.2
 
-A small diary manager based on python.
+A minimal diary manager based on python.
 
 Diapy uses `cryptography.fernet` to encrypt your top secret.
 
