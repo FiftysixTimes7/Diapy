@@ -49,6 +49,7 @@ class Diary:
 
         # If path doesn't exist, create a new file.
         if not os.path.exists(self.path):
+            print('Creating a new file...')
             with open(self.path, 'wb'):
                 pass
 
