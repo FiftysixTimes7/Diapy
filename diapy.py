@@ -24,6 +24,8 @@ def opened(func):
 
 class Diary:
     # Class the instance which will be returned in get function.
+    __slots__ = ('_content', '_key', 'closed', 'path')
+
     class Entry:
         def __init__(self, timestamp: int, content: str):
             self.timestamp = timestamp
@@ -96,7 +98,7 @@ class Diary:
         self.closed = True
 
     @opened
-    def key(self, date: int=None):
+    def key(self, date: int = None):
         table = {}
         for k in self._content.keys():
             # Convert to an 8 digit int
@@ -110,7 +112,7 @@ class Diary:
             return list(table.keys())
 
     @opened
-    def new(self, content: str, datetimeobj: datetime=None):
+    def new(self, content: str, datetimeobj: datetime = None):
         if not datetimeobj:
             datetimeobj = datetime.now()
 
