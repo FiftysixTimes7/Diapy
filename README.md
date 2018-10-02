@@ -1,5 +1,5 @@
 ﻿# diapy
->Version 3.0.2
+>Version 3.1.1
 
 A minimal diary manager based on python.
 
