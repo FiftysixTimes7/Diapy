@@ -8,8 +8,9 @@ import random
 import re
 from datetime import datetime
 from cryptography.fernet import Fernet
+import zlib
 
-__version__ = '3.0.2'
+__version__ = '3.1.0'
 
 
 def opened(func):
@@ -61,8 +62,8 @@ class Diary:
             self._content = {}
         else:
             f = Fernet(self._key)
-            self._content = pickle.loads(
-                f.decrypt(base64.urlsafe_b64encode(text)))
+            self._content = pickle.loads(zlib.decompress(
+                f.decrypt(base64.urlsafe_b64encode(text))))
 
     @opened
     def __getitem__(self, item: int):
@@ -87,9 +88,9 @@ class Diary:
     def close(self):
         f = Fernet(self._key)
         with open(self.path, 'wb') as file:
-            # Dump, optimize, encrypt, decode.
-            file.write(base64.urlsafe_b64decode(f.encrypt(
-                pickletools.optimize(pickle.dumps(self._content, 4)))))
+            # Dump, optimize, compress, encrypt, decode.
+            file.write(base64.urlsafe_b64decode(f.encrypt(zlib.compress(
+                pickletools.optimize(pickle.dumps(self._content, 4))))))
         self._key = None
         self._content = None
         self.closed = True
