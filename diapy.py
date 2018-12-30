@@ -13,19 +13,10 @@ import zlib
 __version__ = '3.1.1'
 
 
-def opened(func):
-    def wrapper(*arg, **kw):
-        if not arg[0].closed:
-            return func(*arg, **kw)
-        else:
-            raise ValueError('File closed.')
-    return wrapper
-
-
 class Diary:
-    # Class the instance which will be returned in get function.
     __slots__ = ('_content', '_key', 'closed', 'path')
 
+    # Class the instance which will be returned in get function.
     class Entry:
         def __init__(self, timestamp: int, content: str):
             self.timestamp = timestamp
@@ -43,6 +34,14 @@ class Diary:
                 weekdays[datetime.weekday(date)] + '\n' + self.content
 
         __repr__ = __str__
+
+    def opened(self, func):
+        def wrapper(*arg, **kw):
+            if not arg[0].closed:
+                return func(*arg, **kw)
+            else:
+                raise ValueError('File closed.')
+        return wrapper
 
     def __init__(self, path: str):
         self.path = path
