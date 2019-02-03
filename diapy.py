@@ -142,7 +142,6 @@ Do you want to overwrite, discard changes or merge them together?
 
     @opened
     def search(self, kw: str):
-        for key in self._content.keys():
-            if kw in self._content[key]:
-                print(self[int(datetime.fromtimestamp(
-                    key).date().strftime('%Y%m%d'))], end='\n\n')
+        for key in self.key():
+            if kw in str(self[key]):
+                print(self[key], end='\n\n')
